@@ -161,12 +161,12 @@ export abstract class BasePetType implements IPetType {
         return this._speed !== PetSpeed.still;
     }
 
-    recoverFriend(friend: IPetType) {
+    recoverFriend(friend: IPetType): void {
         // Recover friends..
         this._friend = friend;
     }
 
-    recoverState(state: PetInstanceState) {
+    recoverState(state: PetInstanceState): void {
         // TODO : Resolve a bug where if it was swiping before, it would fail
         // because holdState is no longer valid.
         this.currentStateEnum = state.currentStateEnum ?? States.sitIdle;
@@ -179,15 +179,15 @@ export abstract class BasePetType implements IPetType {
         }
     }
 
-    get canSwipe() {
+    get canSwipe(): boolean {
         return !isStateAboveGround(this.currentStateEnum);
     }
 
-    get canChase() {
+    get canChase(): boolean {
         return !isStateAboveGround(this.currentStateEnum) && this.isMoving;
     }
 
-    showSpeechBubble(message: string, duration: number = 3000) {
+    showSpeechBubble(message: string, duration: number = 3000): void {
         this.speech.innerHTML = message;
         this.speech.style.display = 'block';
         setTimeout(() => {
@@ -195,11 +195,11 @@ export abstract class BasePetType implements IPetType {
         }, duration);
     }
 
-    hideSpeechBubble() {
+    hideSpeechBubble(): void {
         this.speech.style.display = 'none';
     }
 
-    swipe() {
+    swipe(): void {
         if (this.currentStateEnum === States.swipe) {
             return;
         }
@@ -210,20 +210,20 @@ export abstract class BasePetType implements IPetType {
         this.showSpeechBubble('👋');
     }
 
-    chase(ballState: BallState, canvas: HTMLCanvasElement) {
+    chase(ballState: BallState, canvas: HTMLCanvasElement): void {
         this.currentStateEnum = States.chase;
         this.currentState = new ChaseState(this, ballState, canvas);
     }
 
-    faceLeft() {
+    faceLeft(): void {
         this.el.style.transform = 'scaleX(-1)';
     }
 
-    faceRight() {
+    faceRight(): void {
         this.el.style.transform = 'scaleX(1)';
     }
 
-    setAnimation(face: string) {
+    setAnimation(face: string): void {
         if (this.el.src.endsWith(`_${face}_8fps.gif`)) {
             return;
         }
@@ -247,7 +247,7 @@ export abstract class BasePetType implements IPetType {
         return possibleNextStates[idx];
     }
 
-    nextFrame() {
+    nextFrame(): void {
         if (
             this.currentState.horizontalDirection === HorizontalDirection.left
         ) {
