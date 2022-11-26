@@ -10,12 +10,13 @@ import {
 } from '../common/types';
 import { IPetType } from './states';
 import {
-    createPet,
     PetCollection,
     PetElement,
     IPetCollection,
     availableColors,
     InvalidPetException,
+    PetCreator,
+    resolveCreator,
 } from './pets';
 import { BallState, PetElementState, PetPanelState } from './states';
 
@@ -31,6 +32,7 @@ declare global {
 
 export var allPets: IPetCollection = new PetCollection();
 var petCounter: number;
+var petCreator: PetCreator;
 
 function calculateBallRadius(size: PetSize): number {
     if (size === PetSize.nano) {
@@ -151,8 +153,12 @@ function addPetToPanel(
         if (!availableColors(petType).includes(petColor)) {
             throw new InvalidPetException('Invalid color for pet type');
         }
-        var newPet = createPet(
-            petType,
+        if (name === undefined || name === null || name === '') {
+            throw new InvalidPetException('name is undefined');
+        }
+
+        petCreator = resolveCreator(petType);
+        var newPet = petCreator.createPet([
             petSpriteElement,
             collisionElement,
             speechBubbleElement,
@@ -162,7 +168,7 @@ function addPetToPanel(
             root,
             floor,
             name,
-        );
+        ]);
         petCounter++;
         startAnimations(collisionElement, newPet, stateApi);
     } catch (e: any) {
