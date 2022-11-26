@@ -14,6 +14,18 @@ import { Totoro } from './pets/totoro';
 import { Zappy } from './pets/zappy';
 import { IPetType } from './states';
 
+type StandardPetArguments = [
+    spriteElement: HTMLImageElement,
+    collisionElement: HTMLDivElement,
+    speechElement: HTMLDivElement,
+    size: PetSize,
+    left: number,
+    bottom: number,
+    petRoot: string,
+    floor: number,
+    name: string,
+];
+
 export class PetElement {
     el: HTMLImageElement;
     collision: HTMLDivElement;
@@ -143,61 +155,130 @@ export class InvalidPetException {
     }
 }
 
-export function createPet(
-    petType: string,
-    el: HTMLImageElement,
-    collision: HTMLDivElement,
-    speech: HTMLDivElement,
-    size: PetSize,
-    left: number,
-    bottom: number,
-    petRoot: string,
-    floor: number,
-    name: string,
-): IPetType {
-    if (name === undefined || name === null || name === '') {
-        throw new InvalidPetException('name is undefined');
+export interface PetCreator {
+    speed: number;
+    createPet(args:StandardPetArguments): IPetType;
+}
+
+export class CatCreator implements PetCreator {
+    speed = PetSpeed.normal;
+    createPet(args:StandardPetArguments): IPetType {
+        return new Cat(...args, this.speed);
     }
+} 
 
-    const standardPetArguments: [
-        HTMLImageElement,
-        HTMLDivElement,
-        HTMLDivElement,
-        PetSize,
-        number,
-        number,
-        string,
-        number,
-        string,
-    ] = [el, collision, speech, size, left, bottom, petRoot, floor, name];
+export class ChickenCreator implements PetCreator {
+    speed = PetSpeed.normal;
+    createPet(args:StandardPetArguments): IPetType {
+        return new Chicken(...args, this.speed);
+    }
+} 
 
+export class DogCreator implements PetCreator {
+    speed = PetSpeed.normal;
+    createPet(args:StandardPetArguments): IPetType {
+        return new Dog(...args, this.speed);
+    }
+} 
+
+export class FoxCreator implements PetCreator {
+    speed = PetSpeed.fast;
+    createPet(args:StandardPetArguments): IPetType {
+        return new Fox(...args, this.speed);
+    }
+} 
+
+export class CrabCreator implements PetCreator {
+    speed = PetSpeed.slow;
+    createPet(args:StandardPetArguments): IPetType {
+        return new Crab(...args, this.speed);
+    }
+} 
+
+export class ClippyCreator implements PetCreator {
+    speed = PetSpeed.slow;
+    createPet(args:StandardPetArguments): IPetType {
+        return new Clippy(...args, this.speed);
+    }
+} 
+
+export class ModCreator implements PetCreator {
+    speed = PetSpeed.normal;
+    createPet(args:StandardPetArguments): IPetType {
+        return new Mod(...args, this.speed);
+    }
+} 
+
+export class TotoroCreator implements PetCreator {
+    speed = PetSpeed.normal;
+    createPet(args:StandardPetArguments): IPetType {
+        return new Totoro(...args, this.speed);
+    }
+} 
+
+export class SnakeCreator implements PetCreator {
+    speed = PetSpeed.verySlow;
+    createPet(args:StandardPetArguments): IPetType {
+        return new Snake(...args, this.speed);
+    }
+} 
+
+export class RubberDuckCreator implements PetCreator {
+    speed = PetSpeed.fast;
+    createPet(args:StandardPetArguments): IPetType {
+        return new RubberDuck(...args, this.speed);
+    }
+} 
+
+export class ZappyCreator implements PetCreator {
+    speed = PetSpeed.veryFast;
+    createPet(args:StandardPetArguments): IPetType {
+        return new Zappy(...args, this.speed);
+    }
+} 
+
+export class RockyCreator implements PetCreator {
+    speed = PetSpeed.still;
+    createPet(args:StandardPetArguments): IPetType {
+        return new Rocky(...args, this.speed);
+    }
+} 
+
+export class CockatielCreator implements PetCreator {
+    speed = PetSpeed.normal;
+    createPet(args:StandardPetArguments): IPetType {
+        return new Cockatiel(...args, this.speed);
+    }
+} 
+
+export function resolveCreator(petType: string): PetCreator {
     switch (petType) {
         case PetType.cat:
-            return new Cat(...standardPetArguments, PetSpeed.normal);
+            return new CatCreator();
         case PetType.chicken:
-            return new Chicken(...standardPetArguments, PetSpeed.normal);
+            return new ChickenCreator();
         case PetType.dog:
-            return new Dog(...standardPetArguments, PetSpeed.normal);
+            return new DogCreator();
         case PetType.fox:
-            return new Fox(...standardPetArguments, PetSpeed.fast);
+            return new FoxCreator();
         case PetType.crab:
-            return new Crab(...standardPetArguments, PetSpeed.slow);
+            return new CrabCreator();
         case PetType.clippy:
-            return new Clippy(...standardPetArguments, PetSpeed.slow);
+            return new ClippyCreator();
         case PetType.mod:
-            return new Mod(...standardPetArguments, PetSpeed.normal);
+            return new ModCreator();
         case PetType.totoro:
-            return new Totoro(...standardPetArguments, PetSpeed.normal);
+            return new TotoroCreator();
         case PetType.snake:
-            return new Snake(...standardPetArguments, PetSpeed.verySlow);
+            return new SnakeCreator();
         case PetType.rubberduck:
-            return new RubberDuck(...standardPetArguments, PetSpeed.fast);
+            return new RubberDuckCreator();
         case PetType.zappy:
-            return new Zappy(...standardPetArguments, PetSpeed.veryFast);
+            return new ZappyCreator();
         case PetType.rocky:
-            return new Rocky(...standardPetArguments, PetSpeed.still);
+            return new RockyCreator();
         case PetType.cockatiel:
-            return new Cockatiel(...standardPetArguments, PetSpeed.normal);
+            return new CockatielCreator();
         default:
             throw new InvalidPetException("Pet type doesn't exist");
     }
