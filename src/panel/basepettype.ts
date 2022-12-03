@@ -4,7 +4,6 @@ import { ISequenceTree } from './sequences';
 import {
     States,
     IState,
-    resolveState,
     PetInstanceState,
     isStateAboveGround,
     BallState,
@@ -12,6 +11,13 @@ import {
     HorizontalDirection,
     FrameResult,
 } from './states';
+import {
+    StateCreator,
+    resolveStateCreator,
+    ChaseFriendStateCreator,
+    SitIdleStateCreator,
+    SwipeStateCreator,
+} from './statecreators';
 
 export class InvalidStateException {}
 
@@ -25,6 +31,7 @@ export abstract class BasePetType implements IPetType {
     static possibleColors: PetColor[];
     currentState: IState;
     currentStateEnum: States;
+    stateCreator: StateCreator;
     holdState: IState | undefined;
     holdStateEnum: States | undefined;
     private el: HTMLImageElement;
@@ -60,7 +67,8 @@ export abstract class BasePetType implements IPetType {
         this._bottom = bottom;
         this.initSprite(size, left, bottom);
         this.currentStateEnum = this.sequence.startingState;
-        this.currentState = resolveState(this.currentStateEnum, this);
+        this.stateCreator = resolveStateCreator(this.currentStateEnum);
+        this.currentState = this.stateCreator.createState(this);
 
         this._name = name;
         this._size = size;
@@ -170,7 +178,8 @@ export abstract class BasePetType implements IPetType {
         // TODO : Resolve a bug where if it was swiping before, it would fail
         // because holdState is no longer valid.
         this.currentStateEnum = state.currentStateEnum ?? States.sitIdle;
-        this.currentState = resolveState(this.currentStateEnum, this);
+        this.stateCreator = resolveStateCreator(this.currentStateEnum);
+        this.currentState = this.stateCreator.createState(this);
 
         if (!isStateAboveGround(this.currentStateEnum)) {
             // Reset the bottom of the sprite to the floor as the theme
@@ -206,7 +215,8 @@ export abstract class BasePetType implements IPetType {
         this.holdState = this.currentState;
         this.holdStateEnum = this.currentStateEnum;
         this.currentStateEnum = States.swipe;
-        this.currentState = resolveState(this.currentStateEnum, this);
+        this.stateCreator = new SwipeStateCreator();
+        this.currentState = this.stateCreator.createState(this);
         this.showSpeechBubble('👋');
     }
 
@@ -269,7 +279,8 @@ export abstract class BasePetType implements IPetType {
                 this.friend?.isPlaying &&
                 !isStateAboveGround(this.currentStateEnum)
             ) {
-                this.currentState = resolveState(States.chaseFriend, this);
+                const creater = new ChaseFriendStateCreator();
+                this.currentState = creater.createState(this);
                 this.currentStateEnum = States.chaseFriend;
                 return;
             }
@@ -287,16 +298,19 @@ export abstract class BasePetType implements IPetType {
             }
 
             var nextState = this.chooseNextState(this.currentStateEnum);
-            this.currentState = resolveState(nextState, this);
+            this.stateCreator = resolveStateCreator(this.currentStateEnum);
+            this.currentState = this.stateCreator.createState(this);
             this.currentStateEnum = nextState;
         } else if (frameResult === FrameResult.stateCancel) {
             if (this.currentStateEnum === States.chase) {
                 var nextState = this.chooseNextState(States.idleWithBall);
-                this.currentState = resolveState(nextState, this);
+                this.stateCreator = new SitIdleStateCreator();
+                this.currentState = this.stateCreator.createState(this);
                 this.currentStateEnum = nextState;
             } else if (this.currentStateEnum === States.chaseFriend) {
                 var nextState = this.chooseNextState(States.idleWithBall);
-                this.currentState = resolveState(nextState, this);
+                this.stateCreator = new ChaseFriendStateCreator();
+                this.currentState = this.stateCreator.createState(this);
                 this.currentStateEnum = nextState;
             }
         }

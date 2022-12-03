@@ -110,37 +110,37 @@ export function isStateAboveGround(state: States): boolean {
     );
 }
 
-export function resolveState(state: string, pet: IPetType): IState {
-    switch (state) {
-        case States.sitIdle:
-            return new SitIdleState(pet);
-        case States.walkRight:
-            return new WalkRightState(pet);
-        case States.walkLeft:
-            return new WalkLeftState(pet);
-        case States.runRight:
-            return new RunRightState(pet);
-        case States.runLeft:
-            return new RunLeftState(pet);
-        case States.lie:
-            return new LieState(pet);
-        case States.wallHangLeft:
-            return new WallHangLeftState(pet);
-        case States.climbWallLeft:
-            return new ClimbWallLeftState(pet);
-        case States.jumpDownLeft:
-            return new JumpDownLeftState(pet);
-        case States.land:
-            return new LandState(pet);
-        case States.swipe:
-            return new SwipeState(pet);
-        case States.idleWithBall:
-            return new IdleWithBallState(pet);
-        case States.chaseFriend:
-            return new ChaseFriendState(pet);
-    }
-    return new SitIdleState(pet);
-}
+// export function resolveState(state: string, pet: IPetType): IState {
+//     switch (state) {
+//         case States.sitIdle:
+//             return new SitIdleState(pet);
+//         case States.walkRight:
+//             return new WalkRightState(pet);
+//         case States.walkLeft:
+//             return new WalkLeftState(pet);
+//         case States.runRight:
+//             return new RunRightState(pet);
+//         case States.runLeft:
+//             return new RunLeftState(pet);
+//         case States.lie:
+//             return new LieState(pet);
+//         case States.wallHangLeft:
+//             return new WallHangLeftState(pet);
+//         case States.climbWallLeft:
+//             return new ClimbWallLeftState(pet);
+//         case States.jumpDownLeft:
+//             return new JumpDownLeftState(pet);
+//         case States.land:
+//             return new LandState(pet);
+//         case States.swipe:
+//             return new SwipeState(pet);
+//         case States.idleWithBall:
+//             return new IdleWithBallState(pet);
+//         case States.chaseFriend:
+//             return new ChaseFriendState(pet);
+//     }
+//     return new SitIdleState(pet);
+// }
 
 export interface IState {
     label: string;
