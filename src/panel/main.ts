@@ -566,7 +566,7 @@ export function petPanelApp(
             case 'roll-call':
                 var pets = allPets.pets;
                 // go through every single
-                // pet and then print out their name
+                // pet and then print out their names
                 pets.forEach((pet) => {
                     stateApi?.postMessage({
                         command: 'info',

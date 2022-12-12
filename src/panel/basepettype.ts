@@ -269,7 +269,6 @@ export abstract class BasePetType implements IPetType {
         }
         this.setAnimation(this.currentState.spriteLabel);
 
-        // What's my buddy doing?
         if (
             this.hasFriend &&
             this.currentStateEnum !== States.chaseFriend &&
