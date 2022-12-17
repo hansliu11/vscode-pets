@@ -73,7 +73,7 @@ function getConfiguredThemeKind(): ColorThemeKind {
     return vscode.window.activeColorTheme.kind;
 }
 
-function getConfigurationPosition() {
+function getConfigurationPosition(): ExtPosition {
     return vscode.workspace
         .getConfiguration('vscode-pets')
         .get<ExtPosition>('position', DEFAULT_POSITION);
@@ -92,7 +92,7 @@ function updatePanelThrowWithMouse(): void {
     }
 }
 
-function updateExtensionPositionContext() {
+function updateExtensionPositionContext(): void {
     vscode.commands.executeCommand(
         'setContext',
         'vscode-pets.position',
@@ -168,7 +168,7 @@ export class PetSpecification {
 export function storeCollectionAsMemento(
     context: vscode.ExtensionContext,
     collection: PetSpecification[],
-) {
+): void {
     var contextTypes = new Array(collection.length);
     var contextColors = new Array(collection.length);
     var contextNames = new Array(collection.length);
@@ -643,11 +643,11 @@ function updateStatusBar(): void {
     spawnPetStatusBar.show();
 }
 
-export function petPlaygroundDeactivate() {
+export function petPlaygroundDeactivate(): void {
     petPlaygroundStatusBar.dispose();
 }
 
-export function spawnPetDeactivate() {
+export function spawnPetDeactivate(): void {
     spawnPetStatusBar.dispose();
 }
 
@@ -731,19 +731,19 @@ class PetWebviewContainer implements IPetPanel {
         return this._throwBallWithMouse;
     }
 
-    public updatePetColor(newColor: PetColor) {
+    public updatePetColor(newColor: PetColor): void {
         this._petColor = newColor;
     }
 
-    public updatePetType(newType: PetType) {
+    public updatePetType(newType: PetType): void {
         this._petType = newType;
     }
 
-    public updatePetSize(newSize: PetSize) {
+    public updatePetSize(newSize: PetSize): void {
         this._petSize = newSize;
     }
 
-    public updateTheme(newTheme: Theme, themeKind: vscode.ColorThemeKind) {
+    public updateTheme(newTheme: Theme, themeKind: vscode.ColorThemeKind): void {
         this._theme = newTheme;
         this._themeKind = themeKind;
     }
@@ -756,7 +756,7 @@ class PetWebviewContainer implements IPetPanel {
         });
     }
 
-    public throwBall() {
+    public throwBall(): void {
         this.getWebview().postMessage({
             command: 'throw-ball',
         });
@@ -768,7 +768,7 @@ class PetWebviewContainer implements IPetPanel {
         });
     }
 
-    public spawnPet(spec: PetSpecification) {
+    public spawnPet(spec: PetSpecification): void {
         this.getWebview().postMessage({
             command: 'spawn-pet',
             type: spec.type,
@@ -778,7 +778,7 @@ class PetWebviewContainer implements IPetPanel {
         this.getWebview().postMessage({ command: 'set-size', size: spec.size });
     }
 
-    public listPets() {
+    public listPets(): void {
         this.getWebview().postMessage({ command: 'list-pets' });
     }
 
@@ -794,14 +794,14 @@ class PetWebviewContainer implements IPetPanel {
         throw new Error('Not implemented');
     }
 
-    protected _update() {
+    protected _update(): void {
         const webview = this.getWebview();
         webview.html = this._getHtmlForWebview(webview);
     }
 
     public update() {}
 
-    protected _getHtmlForWebview(webview: vscode.Webview) {
+    protected _getHtmlForWebview(webview: vscode.Webview): string {
         // Local path to main script run in the webview
         const scriptPathOnDisk = vscode.Uri.joinPath(
             this._extensionUri,
@@ -916,69 +916,31 @@ class PetPanel extends PetWebviewContainer implements IPetPanel {
             ? vscode.window.activeTextEditor.viewColumn
             : undefined;
         // If we already have a panel, show it.
-        if (PetPanel.currentPanel) {
+        if (this.currentPanel) {
             if (
-                petColor === PetPanel.currentPanel.petColor() &&
-                petType === PetPanel.currentPanel.petType() &&
-                petSize === PetPanel.currentPanel.petSize()
+                petColor === this.currentPanel.petColor() &&
+                petType === this.currentPanel.petType() &&
+                petSize === this.currentPanel.petSize()
             ) {
-                PetPanel.currentPanel._panel.reveal(column);
+                this.currentPanel._panel.reveal(column);
                 return;
             } else {
-                PetPanel.currentPanel.updatePetColor(petColor);
-                PetPanel.currentPanel.updatePetType(petType);
-                PetPanel.currentPanel.updatePetSize(petSize);
-                PetPanel.currentPanel.update();
+                this.currentPanel.updatePetColor(petColor);
+                this.currentPanel.updatePetType(petType);
+                this.currentPanel.updatePetSize(petSize);
+                this.currentPanel.update();
             }
         }
 
         // Otherwise, create a new panel.
         const panel = vscode.window.createWebviewPanel(
-            PetPanel.viewType,
+            this.viewType,
             vscode.l10n.t('Pet Panel'),
             vscode.ViewColumn.Two,
             getWebviewOptions(extensionUri),
         );
 
-        PetPanel.currentPanel = new PetPanel(
-            panel,
-            extensionUri,
-            petColor,
-            petType,
-            petSize,
-            theme,
-            themeKind,
-            throwBallWithMouse,
-        );
-    }
-
-    public resetPets() {
-        this.getWebview().postMessage({ command: 'reset-pet' });
-    }
-
-    public listPets() {
-        this.getWebview().postMessage({ command: 'list-pets' });
-    }
-
-    public rollCall(): void {
-        this.getWebview().postMessage({ command: 'roll-call' });
-    }
-
-    public deletePet(petName: string): void {
-        this.getWebview().postMessage({ command: 'delete-pet', name: petName });
-    }
-
-    public static revive(
-        panel: vscode.WebviewPanel,
-        extensionUri: vscode.Uri,
-        petColor: PetColor,
-        petType: PetType,
-        petSize: PetSize,
-        theme: Theme,
-        themeKind: ColorThemeKind,
-        throwBallWithMouse: boolean,
-    ) {
-        PetPanel.currentPanel = new PetPanel(
+        this.currentPanel = new PetPanel(
             panel,
             extensionUri,
             petColor,
@@ -1036,7 +998,45 @@ class PetPanel extends PetWebviewContainer implements IPetPanel {
         );
     }
 
-    public dispose() {
+    public resetPets(): void {
+        this.getWebview().postMessage({ command: 'reset-pet' });
+    }
+
+    public listPets(): void {
+        this.getWebview().postMessage({ command: 'list-pets' });
+    }
+
+    public rollCall(): void {
+        this.getWebview().postMessage({ command: 'roll-call' });
+    }
+
+    public deletePet(petName: string): void {
+        this.getWebview().postMessage({ command: 'delete-pet', name: petName });
+    }
+
+    public static revive(
+        panel: vscode.WebviewPanel,
+        extensionUri: vscode.Uri,
+        petColor: PetColor,
+        petType: PetType,
+        petSize: PetSize,
+        theme: Theme,
+        themeKind: ColorThemeKind,
+        throwBallWithMouse: boolean,
+    ) {
+        PetPanel.currentPanel = new PetPanel(
+            panel,
+            extensionUri,
+            petColor,
+            petType,
+            petSize,
+            theme,
+            themeKind,
+            throwBallWithMouse,
+        );
+    }
+
+    public dispose(): void {
         PetPanel.currentPanel = undefined;
 
         // Clean up our resources
@@ -1096,7 +1096,7 @@ class PetWebviewViewProvider extends PetWebviewContainer {
     }
 }
 
-function getNonce() {
+function getNonce(): string {
     let text = '';
     const possible =
         'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -1106,7 +1106,7 @@ function getNonce() {
     return text;
 }
 
-function createPetPlayground(context: vscode.ExtensionContext) {
+function createPetPlayground(context: vscode.ExtensionContext): void {
     const spec = PetSpecification.fromConfiguration();
     PetPanel.createOrShow(
         context.extensionUri,
